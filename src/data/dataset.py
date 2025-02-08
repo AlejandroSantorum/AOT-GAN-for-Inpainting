@@ -7,6 +7,8 @@ import torchvision.transforms.functional as F
 from PIL import Image
 from torch.utils.data import Dataset
 
+from data.ixi_dataset import IXI_TRAINING_SUBJECTS
+
 
 class InpaintingData(Dataset):
     def __init__(self, args):
@@ -16,9 +18,19 @@ class InpaintingData(Dataset):
 
         # image and mask
         self.image_path = []
-        for ext in ["**/*.jpg", "**/*.png"]:
-            self.image_path.extend(glob(os.path.join(args.dir_image, args.data_train, ext)))
-        self.mask_path = glob(os.path.join(args.dir_mask, args.mask_type, "**/*.png"))
+        if args.data_train.startswith("IXI-"):
+            # IXI dataset
+            for subject in IXI_TRAINING_SUBJECTS:
+                for ext in ["**/*.jpg", "**/*.png"]:
+                    self.image_path.extend(
+                        glob(os.path.join(args.dir_image, args.data_train, subject, ext), recursive=True)
+                    )
+                self.mask_path = glob(os.path.join(args.dir_mask, args.mask_type, subject, "**/*.png"), recursive=True)
+        else:
+            # Normal case: any other dataset
+            for ext in ["**/*.jpg", "**/*.png"]:
+                self.image_path.extend(glob(os.path.join(args.dir_image, args.data_train, ext)))
+            self.mask_path = glob(os.path.join(args.dir_mask, args.mask_type, "**/*.png"))
 
         # augmentation
         self.img_trans = transforms.Compose(
