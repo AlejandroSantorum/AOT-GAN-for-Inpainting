@@ -1,5 +1,6 @@
 
 # IXI Dataset
+
 # Training subjects for IXI dataset used in my paper
 # 400 subjects chosen from IXI dataset using initial seed = 42
 IXI_TRAINING_SUBJECTS = [
@@ -403,4 +404,74 @@ IXI_TRAINING_SUBJECTS = [
     "IXI370-Guys-0921-T1",
     "IXI662-Guys-1120-T1",
     "IXI619-Guys-1099-T1",
+]
+
+# Test set no. 1 with subjects from the IXI dataset used in my paper
+#30 subjects chosen from IXI dataset using initial seed = 42
+IXI_TEST_SUBJECTS_1 = [
+    "IXI288-Guys-0879-T1",
+    "IXI432-Guys-0987-T1",
+    "IXI102-HH-1416-T1",
+    "IXI460-Guys-0999-T1",
+    "IXI117-Guys-0763-T1",
+    "IXI121-Guys-0772-T1",
+    "IXI150-HH-1550-T1",
+    "IXI508-HH-2268-T1",
+    "IXI528-Guys-1073-T1",
+    "IXI183-Guys-0791-T1",
+    "IXI244-Guys-0841-T1",
+    "IXI218-HH-1815-T1",
+    "IXI571-IOP-1154-T1",
+    "IXI072-HH-2324-T1",
+    "IXI307-IOP-0872-T1",
+    "IXI510-IOP-1143-T1",
+    "IXI350-Guys-0908-T1",
+    "IXI376-Guys-0938-T1",
+    "IXI086-Guys-0728-T1",
+    "IXI389-Guys-0930-T1",
+    "IXI033-HH-1259-T1",
+    "IXI034-HH-1260-T1",
+    "IXI139-Guys-0815-T1",
+    "IXI418-Guys-0956-T1",
+    "IXI114-Guys-0737-T1",
+    "IXI549-Guys-1046-T1",
+    "IXI519-HH-2240-T1",
+    "IXI313-HH-2241-T1",
+    "IXI357-HH-2076-T1",
+    "IXI485-HH-2180-T1",
+]
+
+# Test set no. 2 with subjects from the IXI dataset used in my paper
+#30 subjects chosen from IXI dataset using initial seed = 42
+IXI_TEST_SUBJECTS_2 = [
+    "IXI288-Guys-0879-T1",
+    "IXI432-Guys-0987-T1",
+    "IXI102-HH-1416-T1",
+    "IXI460-Guys-0999-T1",
+    "IXI117-Guys-0763-T1",
+    "IXI121-Guys-0772-T1",
+    "IXI150-HH-1550-T1",
+    "IXI508-HH-2268-T1",
+    "IXI528-Guys-1073-T1",
+    "IXI183-Guys-0791-T1",
+    "IXI244-Guys-0841-T1",
+    "IXI218-HH-1815-T1",
+    "IXI571-IOP-1154-T1",
+    "IXI072-HH-2324-T1",
+    "IXI307-IOP-0872-T1",
+    "IXI510-IOP-1143-T1",
+    "IXI350-Guys-0908-T1",
+    "IXI376-Guys-0938-T1",
+    "IXI086-Guys-0728-T1",
+    "IXI389-Guys-0930-T1",
+    "IXI033-HH-1259-T1",
+    "IXI034-HH-1260-T1",
+    "IXI139-Guys-0815-T1",
+    "IXI418-Guys-0956-T1",
+    "IXI114-Guys-0737-T1",
+    "IXI549-Guys-1046-T1",
+    "IXI519-HH-2240-T1",
+    "IXI313-HH-2241-T1",
+    "IXI357-HH-2076-T1",
+    "IXI485-HH-2180-T1",
 ]
