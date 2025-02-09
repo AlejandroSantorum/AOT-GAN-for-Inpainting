@@ -28,6 +28,7 @@ def main(args, use_gpu=True):
         model = net.InpaintGenerator(args).cuda()
         model.load_state_dict(torch.load(args.pre_train, map_location="cuda"))
     else:
+        print(f"Loading model '{args.pre_train}' ...")
         model = net.InpaintGenerator(args)
         model.load_state_dict(torch.load(args.pre_train, map_location="cpu"))
     model.eval()
@@ -53,13 +54,18 @@ def main(args, use_gpu=True):
                     brain_slice_img = (brain_slice_img * 2.0 - 1.0).unsqueeze(0)
                     mask_slice_img = mask_slice_img.unsqueeze(0)
 
+                    # Masking brain slice image with mask slice image
+                    masked_brain_slice_img = brain_slice_img * (1 - mask_slice_img.float()) + mask_slice_img
+
                     if use_gpu:
-                        brain_slice_img, mask_slice_img = brain_slice_img.cuda(), mask_slice_img.cuda()
-                    
+                        brain_slice_img = brain_slice_img.cuda()
+                        mask_slice_img = mask_slice_img.cuda()
+                        masked_brain_slice_img = masked_brain_slice_img.cuda()
+
                     # Inpainting
                     with torch.no_grad():
-                        pred_img = model(brain_slice_img, mask_slice_img)
-                    
+                        pred_img = model(masked_brain_slice_img, mask_slice_img)
+
                     # Getting numpy arrays: 0 for batch dimension + cpu() + numpy() + 0 for channel dimension
                     groundtruth_slice_npy = brain_slice_img[0].cpu().numpy()[0]
                     mask_slice_npy = mask_slice_img[0].cpu().numpy()[0]
