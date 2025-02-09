@@ -1,10 +1,6 @@
 import importlib
 import os
-from glob import glob
-import sys
 import re
-
-sys.path.append("/home/santorum/phd")
 
 import torch
 import numpy as np
@@ -19,8 +15,8 @@ from utils.metrics import mse_2d, snr_2d, psnr_2d, ssim_2d
 
 
 def main(args, use_gpu=True):
-    brain_input_dir = "/scratch/santorum/data/IXI-skull-stripped-mni-AOT-GAN-brains-png"
-    mask_input_dir = "/scratch/santorum/data/IXI-skull-stripped-mni-AOT-GAN-masks-png"
+    brain_input_dir = os.path.join(args.dir_image, args.data_train)
+    mask_input_dir = os.path.join(args.dir_mask, args.mask_type)
 
     # Model and version
     net = importlib.import_module("model." + args.model)
