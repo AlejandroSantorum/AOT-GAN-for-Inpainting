@@ -35,17 +35,18 @@ class InpaintingData(Dataset):
         # augmentation
         self.img_trans = transforms.Compose(
             [
-                transforms.RandomResizedCrop(args.image_size),
-                transforms.RandomHorizontalFlip(),
-                transforms.ColorJitter(0.05, 0.05, 0.05, 0.05),
+                # Commented out data augmentation for simplicity
+                # transforms.RandomResizedCrop(args.image_size),
+                # transforms.RandomHorizontalFlip(),
+                # transforms.ColorJitter(0.05, 0.05, 0.05, 0.05),
                 transforms.ToTensor(),
             ]
         )
         self.mask_trans = transforms.Compose(
             [
                 transforms.Resize(args.image_size, interpolation=transforms.InterpolationMode.NEAREST),
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomRotation((0, 45), interpolation=transforms.InterpolationMode.NEAREST),
+                # transforms.RandomHorizontalFlip(),
+                # transforms.RandomRotation((0, 45), interpolation=transforms.InterpolationMode.NEAREST),
             ]
         )
 
@@ -57,14 +58,24 @@ class InpaintingData(Dataset):
         image = Image.open(self.image_path[index]).convert("RGB")
         filename = os.path.basename(self.image_path[index])
 
-        if self.mask_type == "pconv":
-            index = np.random.randint(0, len(self.mask_path))
-            mask = Image.open(self.mask_path[index])
-            mask = mask.convert("L")
-        else:
-            mask = np.zeros((self.h, self.w)).astype(np.uint8)
-            mask[self.h // 4 : self.h // 4 * 3, self.w // 4 : self.w // 4 * 3] = 1
-            mask = Image.fromarray(mask).convert("L")
+        ######
+        # ORIGINAL MASK LOADING
+        ######
+        # if self.mask_type == "pconv":
+        #     index = np.random.randint(0, len(self.mask_path))
+        #     mask = Image.open(self.mask_path[index])
+        #     mask = mask.convert("L")
+        # else:
+        #     mask = np.zeros((self.h, self.w)).astype(np.uint8)
+        #     mask[self.h // 4 : self.h // 4 * 3, self.w // 4 : self.w // 4 * 3] = 1
+        #     mask = Image.fromarray(mask).convert("L")
+
+        ######
+        # SANTORUM MASK LOADING
+        ######
+        index = np.random.randint(0, len(self.mask_path))
+        mask = Image.open(self.mask_path[index])
+        mask = mask.convert("L")
 
         # augment
         image = self.img_trans(image) * 2.0 - 1.0
