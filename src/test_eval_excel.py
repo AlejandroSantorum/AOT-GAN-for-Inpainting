@@ -1,6 +1,7 @@
 import importlib
 import os
 import re
+import random
 
 import torch
 import numpy as np
@@ -10,13 +11,48 @@ from PIL import Image
 from torchvision.transforms import ToTensor
 
 from utils.option import args
-from data.ixi_dataset import IXI_TEST_SUBJECTS_1
+from data.ixi_dataset import IXI_TEST_SUBJECTS_1, IXI_TEST_SUBJECTS_2
+from data.on228_dataset import ON228_TEST_SUBJECTS
 from utils.metrics import mse_2d, snr_2d, psnr_2d, ssim_2d
+
+
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
 
 
 def main(args, use_gpu=True):
     brain_input_dir = os.path.join(args.dir_image, args.data_train)
     mask_input_dir = os.path.join(args.dir_mask, args.mask_type)
+
+    # Define test subjects
+    if args.data_train.startswith("IXI-"):
+        if args.split_type == "train":
+            raise ValueError("Train split for IXI dataset cannot be used in testing phase.")
+        elif args.split_type == "test1":
+            test_subjects = IXI_TEST_SUBJECTS_1
+        elif args.split_type == "test2":
+            test_subjects = IXI_TEST_SUBJECTS_2
+        else:
+            raise ValueError(f"Unknown split type '{args.split_type}' for IXI dataset. Valid options are: 'test1' and 'test2'.")
+    elif args.data_train.startswith("openneuro-ds000228-"):
+        if args.split_type == "train":
+            raise ValueError("Train split for OpenNeuro 228 dataset cannot be used in testing phase.")
+        elif args.split_type == "test1":
+            test_subjects = ON228_TEST_SUBJECTS
+        else:
+            raise ValueError(f"Unknown split type '{args.split_type}' for OpenNeuro 228 dataset. Valid option is: 'test1'.")
+    else:
+        raise ValueError(f"Unknown dataset '{args.data_train}'. Valid options contain: 'IXI', 'openneuro-ds000228'.")
+
+    # Create output directories if they do not exist
+    if args.npy_output_dir:
+        os.makedirs(os.path.join(args.npy_output_dir, "inpainted"), exist_ok=True)
+        os.makedirs(os.path.join(args.npy_output_dir, "ref_mask"), exist_ok=True)
+        os.makedirs(os.path.join(args.npy_output_dir, "groundtruth"), exist_ok=True)
+    if args.save_dir:
+        os.makedirs(args.save_dir, exist_ok=True)
 
     # Model and version
     net = importlib.import_module("model." + args.model)
@@ -29,10 +65,14 @@ def main(args, use_gpu=True):
         model.load_state_dict(torch.load(args.pre_train, map_location="cpu"))
     model.eval()
 
+    # Set seed for reproducibility
+    if args.seed:
+        set_seed(args.seed)
+
     subject_names, slice_indices = [], []
     mse_list, snr_list, psnr_list, ssim_list = [], [], [], []
     for subject_name in tqdm(os.listdir(brain_input_dir)):
-        if os.path.isdir(os.path.join(brain_input_dir, subject_name)) and subject_name in IXI_TEST_SUBJECTS_1:
+        if os.path.isdir(os.path.join(brain_input_dir, subject_name)) and subject_name in test_subjects:
             for slice_img_fname in os.listdir(os.path.join(brain_input_dir, subject_name)):
                 if slice_img_fname.endswith(".png"):
                     slice_number = int(re.search(r'slice(\d+)', slice_img_fname).group(1))
@@ -66,6 +106,21 @@ def main(args, use_gpu=True):
                     groundtruth_slice_npy = brain_slice_img[0].cpu().numpy()[0]
                     mask_slice_npy = mask_slice_img[0].cpu().numpy()[0]
                     pred_img_npy = pred_img[0].cpu().numpy()[0]
+
+                    # Store slices
+                    if args.npy_output_dir:
+                        np.save(
+                            file=os.path.join(args.npy_output_dir, "inpainted", f"{subject_name}_slice{slice_number}.npy"),
+                            arr=pred_img_npy,
+                        )
+                        np.save(
+                            file=os.path.join(args.npy_output_dir, "ref_mask", f"{subject_name}_slice{slice_number}.npy"),
+                            arr=mask_slice_npy,
+                        )
+                        np.save(
+                            file=os.path.join(args.npy_output_dir, "groundtruth", f"{subject_name}_slice{slice_number}.npy"),
+                            arr=groundtruth_slice_npy,
+                        )
 
                     # Performance metrics
                     mse = mse_2d(test_img=pred_img_npy, ref_img=groundtruth_slice_npy, mask=mask_slice_npy)
@@ -119,7 +174,6 @@ def main(args, use_gpu=True):
     performance_metrics_df = pd.DataFrame(performance_metrics)
     checkpoint_fname = os.path.basename(args.pre_train).replace('.pt', '')
     if args.save_dir:
-        os.makedirs(args.save_dir, exist_ok=True)
         store_fpath = os.path.join(args.save_dir, f"performance_metrics_{checkpoint_fname}.xlsx")
         print(f"Saving performance metrics to '{store_fpath}' ...")
         performance_metrics_df.to_excel(store_fpath)
