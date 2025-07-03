@@ -7,7 +7,8 @@ import torchvision.transforms.functional as F
 from PIL import Image
 from torch.utils.data import Dataset
 
-from data.ixi_dataset import IXI_TRAINING_SUBJECTS
+from data.ixi_dataset import IXI_TRAINING_SUBJECTS, IXI_TEST_SUBJECTS_1, IXI_TEST_SUBJECTS_2
+from data.on228_dataset import ON228_TEST_SUBJECTS
 
 
 class InpaintingData(Dataset):
@@ -20,12 +21,28 @@ class InpaintingData(Dataset):
         self.image_path = []
         if args.data_train.startswith("IXI-"):
             # IXI dataset
-            for subject in IXI_TRAINING_SUBJECTS:
+            if args.split_type == "train":
+                split_subjects = IXI_TRAINING_SUBJECTS
+            elif args.split_type == "test1":
+                split_subjects = IXI_TEST_SUBJECTS_1
+            elif args.split_type == "test2":
+                split_subjects = IXI_TEST_SUBJECTS_2
+            else:
+                raise ValueError(f"Unknown split type '{args.split_type}' for IXI dataset. Valid options are: 'train', 'test1', 'test2'.")
+            for subject in split_subjects:
                 for ext in ["**/*.jpg", "**/*.png"]:
                     self.image_path.extend(
                         glob(os.path.join(args.dir_image, args.data_train, subject, ext), recursive=True)
                     )
                 self.mask_path = glob(os.path.join(args.dir_mask, args.mask_type, subject, "**/*.png"), recursive=True)
+        
+        elif args.data_train.startswith("openneuro-ds000228-"):
+            # OpenNeuro 228 dataset
+            if args.split_type == "train":
+                raise NotImplementedError("Train split for OpenNeuro 228 dataset is not implemented.")
+            elif args.split_type == "test1":
+                split_subjects = ON228_TEST_SUBJECTS
+
         else:
             # Normal case: any other dataset
             for ext in ["**/*.jpg", "**/*.png"]:
