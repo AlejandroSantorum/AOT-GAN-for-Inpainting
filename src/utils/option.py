@@ -55,6 +55,10 @@ parser.add_argument("--outputs", type=str, default="../outputs", help="path to s
 parser.add_argument("--thick", type=int, default=15, help="the thick of pen for free-form drawing")
 parser.add_argument("--painter", default="freeform", choices=("freeform", "bbox"), help="different painters for demo ")
 
+# additional specifications (Santorum)
+parser.add_argument("--split_type", type=str, default=None, help="type of split for training and testing")
+parser.add_argument("--npy_output_dir", type=str, default=None, help="directory to save numpy arrays")
+
 
 # ----------------------------------
 args = parser.parse_args()
