@@ -77,7 +77,7 @@ def main(args, use_gpu=True):
                 if slice_img_fname.endswith(".png"):
                     slice_number = int(re.search(r'slice(\d+)', slice_img_fname).group(1))
                     brain_slice_fname = slice_img_fname
-                    mask_slice_fname = slice_img_fname.replace("-T1-brain-", "-T1-mask-")
+                    mask_slice_fname = slice_img_fname.replace("-brain-", "-mask-")
                     # Brain and mask slices filepaths
                     brain_slice_fpath = os.path.join(brain_input_dir, subject_name, brain_slice_fname)
                     mask_slice_fpath = os.path.join(mask_input_dir, subject_name, mask_slice_fname)
