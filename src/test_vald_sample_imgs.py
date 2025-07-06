@@ -42,8 +42,19 @@ def main(args, use_gpu=True):
             raise NotImplementedError("Test split for OpenNeuro 228 dataset is not implemented yet.")
         else:
             raise ValueError(f"Unknown split type '{args.split_type}' for OpenNeuro 228 dataset. Valid option is: 'test1'.")
+    elif args.data_train.startswith("bratsc2023-"):
+        if args.split_type == "train":
+            raise ValueError("Train split for BraTSC 2023 dataset cannot be used in testing phase.")
+        elif args.split_type == "test":
+            test_subjects = [
+                # subject name, brain slice name
+                ("BraTS-GLI-00739-000", "BraTS-GLI-00739-000-slice100"),
+                ("BraTS-GLI-01199-000", "BraTS-GLI-01199-000-slice125"),
+            ]
+        else:
+            raise ValueError(f"Unknown split type '{args.split_type}' for BraTSC 2023 dataset. Valid option: 'test'.")    
     else:
-        raise ValueError(f"Unknown dataset '{args.data_train}'. Valid options contain: 'IXI', 'openneuro-ds000228'.")
+        raise ValueError(f"Unknown dataset '{args.data_train}'. Valid options contain: 'IXI', 'openneuro-ds000228', 'bratsc2023'.")
 
     # Create output directories if they do not exist
     if args.npy_output_dir:
